@@ -197,8 +197,8 @@ Mon Mar 13 12:28:01 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, 
 
 
 node 节点
-ln -s /usr/local/mysql/bin/mysqlbinlog mysqlbinlog
-ln -s /usr/local/mysql/bin/mysql mysql
+=> /usr/local/bin # ln -s /usr/local/mysql/bin/mysqlbinlog mysqlbinlog
+=> /usr/local/bin # ln -s /usr/local/mysql/bin/mysql mysql
 
 Mon Mar 13 12:29:28 2017 - [info] Checking master_ip_failover_script status:
 Mon Mar 13 12:29:28 2017 - [info]   /usr/local/bin/master_ip_failover --command=status --ssh_user=mysql --orig_master_host=master --orig_master_ip=192.168.86.136 --orig_master_port=3306

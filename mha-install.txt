@@ -1,0 +1,391 @@
+
+调整hostname
+/etc/sysconfig/network
+/proc/sys/kernel/hostname
+
+
+设置hosts
+192.168.86.136    master
+192.168.86.137    cmaster
+192.168.86.138    slave
+192.168.86.139    lb01
+
+
+vip01 192.168.86.44
+vip02 192.168.86.45
+
+
+添加mysql用户
+useradd mysql
+
+
+设置连通性
+lb01 -> master, cmaster, slave
+master, cmaster, slave之间
+
+
+安装epel源
+
+
+安装mha manager
+yum install perl-DBI perl-DBD-MySQL
+
+yum install perl-Config-Tiny perl-Log-Dispatch perl-Parallel-ForkManager perl-Time-HiRes
+
+mha4mysql-node-0.56
+apply_diff_relay_logs
+filter_mysqlbinlog
+purge_relay_logs
+save_binary_logs
+
+mha4mysql-manager-0.56
+masterha_manager
+masterha_conf_host
+masterha_check_status
+masterha_check_ssh
+masterha_check_repl
+masterha_stop
+masterha_secondary_check
+masterha_master_switch
+masterha_master_monitor
+
+cp /home/software/mha/mha4mysql-manager-0.56/samples/scripts/{master_ip_failover,master_ip_online_change} /usr/local/bin/
+
+
+后边这两个脚本还需要修改下 ...
+
+
+安装mha node
+yum install perl-DBI perl-DBD-MySQL
+
+mha4mysql-node-0.56
+
+
+编写配置文件 /etc/masterha/app1.cnf
+[server default]
+user=mha_manager
+password=mha_manager
+
+repl_user=repl
+repl_password=repl
+
+ping_interval=1
+ping_type=CONNECT
+
+manager_workdir=/var/log/masterha/app1
+manager_log=/var/log/masterha/app1/app1.log
+
+remote_workdir=/var/log/masterha/app1
+
+master_ip_failover_script=/usr/local/bin/master_ip_failover
+
+master_ip_online_change_script=/usr/local/bin/master_ip_online_change
+
+secondary_check_script=/usr/local/bin/masterha_secondary_check -s 192.168.86.137 -s 192.168.86.138 --user=mysql --port=22 --master_host=192.168.86.136 --master_port=3306
+
+
+[server1]
+hostname=master
+ip=192.168.86.136
+ssh_user=mysql
+ssh_port=22
+
+port=3306
+ignore_fail=1
+check_repl_delay=0
+candidate_master=1
+master_binlog_dir=/home/3306
+
+[server2]
+hostname=cmaster
+ip=192.168.86.137
+ssh_user=mysql
+ssh_port=22
+
+port=3306
+ignore_fail=1
+check_repl_delay=0
+candidate_master=1
+master_binlog_dir=/home/3306
+
+[server3]
+hostname=slave
+ip=192.168.86.138
+ssh_user=mysql
+ssh_port=22
+
+port=3306
+ignore_fail=1
+check_repl_delay=1
+no_master=1
+master_binlog_dir=/home/3306
+
+
+测试ssh连通性
+masterha_check_ssh --conf=/etc/masterha/app1.cnf
+
+
+安装mysql utilities 
+
+
+最小配置文件my.cnf安装MySQL
+scripts/mysql_install_db --user=mysql --datadir=/home/3306
+
+
+使用mysqlreplicate搭建一主两从复制结构
+
+create user 'root'@'%' identified by '123456';
+grant all privileges on *.* to 'root'@'%' with grant option;
+
+reset master;
+
+mysqlreplicate --master=root:123456@192.168.86.136:3306 --slave=root:123456@192.168.86.137:3306 --rpl-user=repl:repl --pedantic --start-from-beginning
+
+mysqlreplicate --master=root:123456@192.168.86.136:3306 --slave=root:123456@192.168.86.138:3306 --rpl-user=repl:repl --pedantic --start-from-beginning
+
+
+建立mha的管理账号 mha_manager
+create user 'mha_manager'@'%' identified by 'mha_manager';
+grant all privileges on *.* to 'mha_manager'@'%';
+
+
+和复制账号 repl
+create user 'repl'@'%' identified by 'repl';
+grant replication slave, replication client on *.* to 'repl'@'%';
+
+
+manager 节点
+mkdir -pv /var/log/masterha/app1
+chown -R mysql.mysql /var/log/masterha
+
+node 节点
+mkdir -pv /var/log/masterha/app1
+chown -R mysql.mysql /var/log/masterha/app1
+
+
+检查复制情况:
+masterha_check_repl --conf=/etc/masterha/app1.cnf
+
+报错如下:
+
+Mon Mar 13 11:45:09 2017 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_manager' --slave_host=cmaster --slave_ip=192.168.86.137 --slave_port=3306 --workdir=/var/log/masterha/app1 --target_version=5.6.35-log --manager_version=0.56 --relay_dir=/home/3306 --current_relay_log=relay.000001  --slave_pass=xxx
+Mon Mar 13 11:45:09 2017 - [info]   Connecting to mysql@192.168.86.137(cmaster:22)..
+Can't exec "mysqlbinlog": No such file or directory at /usr/local/share/perl5/MHA/BinlogManager.pm line 106.
+mysqlbinlog version command failed with rc 1:0, please verify PATH, LD_LIBRARY_PATH, and client options
+ at /usr/local/bin/apply_diff_relay_logs line 493
+Mon Mar 13 11:45:10 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln205] Slaves settings check failed!
+Mon Mar 13 11:45:10 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln413] Slave configuration failed.
+Mon Mar 13 11:45:10 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln424] Error happened on checking configurations.  at /usr/local/bin/masterha_check_repl line 48
+Mon Mar 13 11:45:10 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln523] Error happened on monitoring servers.
+
+
+Mon Mar 13 12:28:00 2017 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_manager' --slave_host=cmaster --slave_ip=192.168.86.137 --slave_port=3306 --workdir=/var/log/masterha/app1 --target_version=5.6.35-log --manager_version=0.56 --relay_dir=/home/3306 --current_relay_log=relay.000001  --slave_pass=xxx
+Mon Mar 13 12:28:00 2017 - [info]   Connecting to mysql@192.168.86.137(cmaster:22)..
+  Checking slave recovery environment settings..
+    Relay log found at /home/3306, up to relay.000002
+    Temporary relay log file is /home/3306/relay.000002
+    Testing mysql connection and privileges..sh: mysql: command not found
+mysql command failed with rc 127:0!
+ at /usr/local/bin/apply_diff_relay_logs line 375
+	main::check() called at /usr/local/bin/apply_diff_relay_logs line 497
+	eval {...} called at /usr/local/bin/apply_diff_relay_logs line 475
+	main::main() called at /usr/local/bin/apply_diff_relay_logs line 120
+Mon Mar 13 12:28:01 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln205] Slaves settings check failed!
+Mon Mar 13 12:28:01 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln413] Slave configuration failed.
+Mon Mar 13 12:28:01 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln424] Error happened on checking configurations.  at /usr/local/bin/masterha_check_repl line 48
+Mon Mar 13 12:28:01 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln523] Error happened on monitoring servers.
+
+
+node 节点
+ln -s /usr/local/mysql/bin/mysqlbinlog mysqlbinlog
+ln -s /usr/local/mysql/bin/mysql mysql
+
+Mon Mar 13 12:29:28 2017 - [info] Checking master_ip_failover_script status:
+Mon Mar 13 12:29:28 2017 - [info]   /usr/local/bin/master_ip_failover --command=status --ssh_user=mysql --orig_master_host=master --orig_master_ip=192.168.86.136 --orig_master_port=3306
+Bareword "FIXME_xxx" not allowed while "strict subs" in use at /usr/local/bin/master_ip_failover line 93.
+Execution of /usr/local/bin/master_ip_failover aborted due to compilation errors.
+Mon Mar 13 12:29:28 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln226]  Failed to get master_ip_failover_script status with return code 255:0.
+Mon Mar 13 12:29:28 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln424] Error happened on checking configurations.  at /usr/local/bin/masterha_check_repl line 48
+Mon Mar 13 12:29:28 2017 - [error][/usr/local/share/perl5/MHA/MasterMonitor.pm, ln523] Error happened on monitoring servers.
+
+
+这里需要修改master_ip_failover脚本的内容
+use MHA::ManagerUtil;
+
+MHA::ManagerUtil::exec_ssh_cmd( $orig_master_ip, '22', "sudo ip addr del 192.168.86.44/32 dev eth1", undef );
+
+MHA::ManagerUtil::exec_ssh_cmd( $new_master_ip, '22', "sudo ip addr add 192.168.86.44/32 dev eth1; sudo arping -q -c 2 -U -I eth1 192.168.86.44", undef );
+
+my @rc = MHA::ManagerUtil::exec_ssh_cmd( $orig_master_ip, '22', "sudo ip addr list | grep 192.168.86.44", undef );
+
+if( $rc[0] == 0 ) {
+    print "INFO: VIP 192.168.86.44 found on Master.\n";
+
+} else {
+    print "CRITICAL: VIP 192.168.86.44 not found on Master!\n";
+}
+
+exit $rc[0];
+
+
+MySQL Replication Health is OK.
+
+
+node节点 设置sudo
+#Defaults    requiretty
+mysql    ALL=(ALL)    NOPASSWD: ALL
+
+
+修改master_ip_online_change
+use MHA::ManagerUtil;
+
+MHA::ManagerUtil::exec_ssh_cmd( $orig_master_ip, '22', "sudo ip addr del 192.168.86.44/32 dev eth1; sudo arping -q-c 2 -U -I eth1 192.168.86.144", undef );
+
+MHA::ManagerUtil::exec_ssh_cmd( $new_master_ip, '22', "sudo ip addr add 192.168.86.44/32 dev eth1", undef );
+
+
+启动mha manager
+nohup /usr/local/bin/masterha_manager --conf=/etc/masterha/app1.cnf --ignore_last_failover < /dev/null > /var/log/masterha/mha_manager.log 2>&1 &
+
+masterha_check_status --conf=/etc/masterha/app1.cnf
+app1 (pid:12337) is running(0:PING_OK), master:master
+
+masterha_stop --conf=/etc/masterha/app1.cnf
+Stopped app1 successfully.
+
+
+monitor的作用, 被masterha_manager调用
+masterha_master_monitor --conf=/etc/masterha/app1.cnf
+
+
+
+3种切换模式
+
+1.
+master自动监控和故障转移
+nohup /usr/local/bin/masterha_manager --conf=/etc/masterha/app1.cnf --ignore_last_failover < /dev/null > /var/log/masterha/manager.log 2>&1 &
+
+grep 'CHANGE MASTER TO' /var/log/masterha/app1/app1.log
+Mon Mar 13 14:48:27 2017 - [info]  All other slaves should start replication from here. Statement should be: CHANGE MASTER TO MASTER_HOST='cmaster or 192.168.86.137', MASTER_PORT=3306, MASTER_LOG_FILE='bin.000001', MASTER_LOG_POS=120, MASTER_USER='repl', MASTER_PASSWORD='xxx';
+
+
+2.
+master手动故障转移(同1)
+/usr/local/bin/masterha_master_switch --conf=/etc/masterha/app1.cnf --master_state=dead --ignore_last_failover --dead_master_host=master --dead_master_ip=192.168.86.136 --dead_master_port=3306
+
+
+3.
+在线平滑切换
+/usr/local/bin/masterha_master_switch --conf=/etc/masterha/app1.cnf --master_state=alive --orig_master_is_new_slave
+
+切换过程 ...
+
+[mysql@lb01 ~]$ /usr/local/bin/masterha_master_switch --conf=/etc/masterha/app1.cnf --master_state=alive --orig_master_is_new_slave
+Mon Mar 13 15:00:54 2017 - [info] MHA::MasterRotate version 0.56.
+Mon Mar 13 15:00:54 2017 - [info] Starting online master switch..
+Mon Mar 13 15:00:54 2017 - [info]
+Mon Mar 13 15:00:54 2017 - [info] * Phase 1: Configuration Check Phase..
+Mon Mar 13 15:00:54 2017 - [info]
+Mon Mar 13 15:00:54 2017 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.
+Mon Mar 13 15:00:54 2017 - [info] Reading application default configuration from /etc/masterha/app1.cnf..
+Mon Mar 13 15:00:54 2017 - [info] Reading server configuration from /etc/masterha/app1.cnf..
+Mon Mar 13 15:00:54 2017 - [info] GTID failover mode = 0
+Mon Mar 13 15:00:54 2017 - [info] Current Alive Master: master(192.168.86.136:3306)
+Mon Mar 13 15:00:54 2017 - [info] Alive Slaves:
+Mon Mar 13 15:00:54 2017 - [info]   cmaster(192.168.86.137:3306)  Version=5.6.35-log (oldest major version between slaves) log-bin:enabled
+Mon Mar 13 15:00:54 2017 - [info]     Replicating from 192.168.86.136(192.168.86.136:3306)
+Mon Mar 13 15:00:54 2017 - [info]     Primary candidate for the new Master (candidate_master is set)
+Mon Mar 13 15:00:54 2017 - [info]   slave(192.168.86.138:3306)  Version=5.6.35-log (oldest major version between slaves)log-bin:enabled
+Mon Mar 13 15:00:54 2017 - [info]     Replicating from 192.168.86.136(192.168.86.136:3306)
+Mon Mar 13 15:00:54 2017 - [info]     Not candidate for the new Master (no_master is set)
+
+It is better to execute FLUSH NO_WRITE_TO_BINLOG TABLES on the master before switching. Is it ok to execute on master(192.168.86.136:3306)? (YES/no): yes
+Mon Mar 13 15:01:06 2017 - [info] Executing FLUSH NO_WRITE_TO_BINLOG TABLES. This may take long time..
+Mon Mar 13 15:01:06 2017 - [info]  ok.
+Mon Mar 13 15:01:06 2017 - [info] Checking MHA is not monitoring or doing failover..
+Mon Mar 13 15:01:06 2017 - [info] Checking replication health on cmaster..
+Mon Mar 13 15:01:06 2017 - [info]  ok.
+Mon Mar 13 15:01:06 2017 - [info] Checking replication health on slave..
+Mon Mar 13 15:01:06 2017 - [info]  ok.
+Mon Mar 13 15:01:06 2017 - [info] Searching new master from slaves..
+Mon Mar 13 15:01:06 2017 - [info]  Candidate masters from the configuration file:
+Mon Mar 13 15:01:06 2017 - [info]   master(192.168.86.136:3306)  Version=5.6.35-log log-bin:enabled
+Mon Mar 13 15:01:06 2017 - [info]   cmaster(192.168.86.137:3306)  Version=5.6.35-log (oldest major version between slaves) log-bin:enabled
+Mon Mar 13 15:01:06 2017 - [info]     Replicating from 192.168.86.136(192.168.86.136:3306)
+Mon Mar 13 15:01:06 2017 - [info]     Primary candidate for the new Master (candidate_master is set)
+Mon Mar 13 15:01:06 2017 - [info]  Non-candidate masters:
+Mon Mar 13 15:01:06 2017 - [info]   slave(192.168.86.138:3306)  Version=5.6.35-log (oldest major version between slaves)log-bin:enabled
+Mon Mar 13 15:01:06 2017 - [info]     Replicating from 192.168.86.136(192.168.86.136:3306)
+Mon Mar 13 15:01:06 2017 - [info]     Not candidate for the new Master (no_master is set)
+Mon Mar 13 15:01:06 2017 - [info]  Searching from candidate_master slaves which have received the latest relay log events..
+Mon Mar 13 15:01:06 2017 - [info]
+From:
+master(192.168.86.136:3306) (current master)
+ +--cmaster(192.168.86.137:3306)
+ +--slave(192.168.86.138:3306)
+
+To:
+cmaster(192.168.86.137:3306) (new master)
+ +--slave(192.168.86.138:3306)
+ +--master(192.168.86.136:3306)
+
+Starting master switch from master(192.168.86.136:3306) to cmaster(192.168.86.137:3306)? (yes/NO): yes
+Mon Mar 13 15:01:14 2017 - [info] Checking whether cmaster(192.168.86.137:3306) is ok for the new master..
+Mon Mar 13 15:01:14 2017 - [info]  ok.
+Mon Mar 13 15:01:14 2017 - [info] master(192.168.86.136:3306): SHOW SLAVE STATUS returned empty result. To check replication filtering rules, temporarily executing CHANGE MASTER to a dummy host.
+Mon Mar 13 15:01:14 2017 - [info] master(192.168.86.136:3306): Resetting slave pointing to the dummy host.
+Mon Mar 13 15:01:14 2017 - [info] ** Phase 1: Configuration Check Phase completed.
+Mon Mar 13 15:01:14 2017 - [info]
+Mon Mar 13 15:01:14 2017 - [info] * Phase 2: Rejecting updates Phase..
+Mon Mar 13 15:01:14 2017 - [info]
+Mon Mar 13 15:01:14 2017 - [info] Executing master ip online change script to disable write on the current master:
+Mon Mar 13 15:01:14 2017 - [info]   /usr/local/bin/master_ip_online_change --command=stop --orig_master_host=master --orig_master_ip=192.168.86.136 --orig_master_port=3306 --orig_master_user='mha_manager' --orig_master_password='mha_manager'--new_master_host=cmaster --new_master_ip=192.168.86.137 --new_master_port=3306 --new_master_user='mha_manager' --new_master_password='mha_manager' --orig_master_ssh_user=mysql --new_master_ssh_user=mysql   --orig_master_is_new_slave
+Mon Mar 13 15:01:14 2017 253007 Set read_only on the new master.. ok.
+bind: Cannot assign requested address
+Mon Mar 13 15:01:14 2017 748038 Set read_only=1 on the orig master.. ok.
+Mon Mar 13 15:01:14 2017 803877 Killing all application threads..
+Mon Mar 13 15:01:14 2017 803918 done.
+Mon Mar 13 15:01:14 2017 - [info]  ok.
+Mon Mar 13 15:01:14 2017 - [info] Locking all tables on the orig master to reject updates from everybody (including root):
+Mon Mar 13 15:01:14 2017 - [info] Executing FLUSH TABLES WITH READ LOCK..
+Mon Mar 13 15:01:14 2017 - [info]  ok.
+Mon Mar 13 15:01:14 2017 - [info] Orig master binlog:pos is bin.000002:120.
+Mon Mar 13 15:01:14 2017 - [info]  Waiting to execute all relay logs on cmaster(192.168.86.137:3306)..
+Mon Mar 13 15:01:14 2017 - [info]  master_pos_wait(bin.000002:120) completed on cmaster(192.168.86.137:3306). Executed 0events.
+Mon Mar 13 15:01:14 2017 - [info]   done.
+Mon Mar 13 15:01:14 2017 - [info] Getting new master's binlog name and position..
+Mon Mar 13 15:01:14 2017 - [info]  bin.000003:120
+Mon Mar 13 15:01:14 2017 - [info]  All other slaves should start replication from here. Statement should be: CHANGE MASTER TO MASTER_HOST='cmaster or 192.168.86.137', MASTER_PORT=3306, MASTER_LOG_FILE='bin.000003', MASTER_LOG_POS=120, MASTER_USER='repl', MASTER_PASSWORD='xxx';
+Mon Mar 13 15:01:14 2017 - [info] Executing master ip online change script to allow write on the new master:
+Mon Mar 13 15:01:14 2017 - [info]   /usr/local/bin/master_ip_online_change --command=start --orig_master_host=master --orig_master_ip=192.168.86.136 --orig_master_port=3306 --orig_master_user='mha_manager' --orig_master_password='mha_manager' --new_master_host=cmaster --new_master_ip=192.168.86.137 --new_master_port=3306 --new_master_user='mha_manager' --new_master_password='mha_manager' --orig_master_ssh_user=mysql --new_master_ssh_user=mysql   --orig_master_is_new_slave
+Mon Mar 13 15:01:14 2017 926945 Set read_only=0 on the new master.
+Mon Mar 13 15:01:15 2017 - [info]  ok.
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info] * Switching slaves in parallel..
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info] -- Slave switch on host slave(192.168.86.138:3306) started, pid: 13793
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info] Log messages from slave ...
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info]  Waiting to execute all relay logs on slave(192.168.86.138:3306)..
+Mon Mar 13 15:01:15 2017 - [info]  master_pos_wait(bin.000002:120) completed on slave(192.168.86.138:3306). Executed 0 events.
+Mon Mar 13 15:01:15 2017 - [info]   done.
+Mon Mar 13 15:01:15 2017 - [info]  Resetting slave slave(192.168.86.138:3306) and starting replication from the new master cmaster(192.168.86.137:3306)..
+Mon Mar 13 15:01:15 2017 - [info]  Executed CHANGE MASTER.
+Mon Mar 13 15:01:15 2017 - [info]  Slave started.
+Mon Mar 13 15:01:15 2017 - [info] End of log messages from slave ...
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info] -- Slave switch on host slave(192.168.86.138:3306) succeeded.
+Mon Mar 13 15:01:15 2017 - [info] Unlocking all tables on the orig master:
+Mon Mar 13 15:01:15 2017 - [info] Executing UNLOCK TABLES..
+Mon Mar 13 15:01:15 2017 - [info]  ok.
+Mon Mar 13 15:01:15 2017 - [info] Starting orig master as a new slave..
+Mon Mar 13 15:01:15 2017 - [info]  Resetting slave master(192.168.86.136:3306) and starting replication from the new master cmaster(192.168.86.137:3306)..
+Mon Mar 13 15:01:15 2017 - [info]  Executed CHANGE MASTER.
+Mon Mar 13 15:01:15 2017 - [info]  Slave started.
+Mon Mar 13 15:01:15 2017 - [info] All new slave servers switched successfully.
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info] * Phase 5: New master cleanup phase..
+Mon Mar 13 15:01:15 2017 - [info]
+Mon Mar 13 15:01:15 2017 - [info]  cmaster: Resetting slave info succeeded.
+Mon Mar 13 15:01:15 2017 - [info] Switching master to cmaster(192.168.86.137:3306) completed successfully.

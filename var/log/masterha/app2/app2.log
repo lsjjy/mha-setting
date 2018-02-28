@@ -1,3 +1,11 @@
+# 监控, 及自动故障转移
+
+$ nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1 &
+[1] 724
+
+[1]+  Done                    nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1
+
+
 Wed Feb 28 22:05:02 2018 - [info] MHA::MasterMonitor version 0.56.
 Wed Feb 28 22:05:03 2018 - [info] GTID failover mode = 0
 Wed Feb 28 22:05:03 2018 - [info] Dead Servers:
@@ -71,6 +79,8 @@ Wed Feb 28 22:05:06 2018 - [info] Set master ping interval 1 seconds.
 Wed Feb 28 22:05:06 2018 - [info] Set secondary check script: /usr/local/bin/masterha_secondary_check -s 10.252.99.33 -s 10.252.99.34 --user=mysql --port=22 --master_host=10.252.99.32 --master_port=3307
 Wed Feb 28 22:05:06 2018 - [info] Starting ping health check on 10.252.99.32(10.252.99.32:3307)..
 Wed Feb 28 22:05:06 2018 - [info] Ping(CONNECT) succeeded, waiting until MySQL doesn't respond..
+
+
 Wed Feb 28 22:06:14 2018 - [warning] Got error on MySQL connect ping: DBI connect(';host=10.252.99.32;port=3307;mysql_connect_timeout=1','mha_mgr',...) failed: Lost connection to MySQL server at 'reading initial communication packet', system error: 111 at /usr/local/share/perl5/MHA/HealthCheck.pm line 97.
 2013 (Lost connection to MySQL server at 'reading initial communication packet', system error: 111)
 Wed Feb 28 22:06:14 2018 - [info] Executing secondary network check script: /usr/local/bin/masterha_secondary_check -s 10.252.99.33 -s 10.252.99.34 --user=mysql --port=22 --master_host=10.252.99.32 --master_port=3307  --user=mysql  --master_host=10.252.99.32  --master_ip=10.252.99.32  --master_port=3307 --master_user=mha_mgr --master_password=mha_mgr --ping_type=CONNECT

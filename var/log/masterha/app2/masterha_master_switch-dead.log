@@ -1,2 +1,208 @@
 # 手动故障转移
 
+$ /usr/local/bin/masterha_master_switch --conf=/etc/masterha/app2/app2.cnf --master_state=dead --ignore_last_failover --dead_master_host=10.252.99.33 --dead_master_ip=10.252.99.33 --dead_master_port=3307
+Wed Feb 28 23:11:23 2018 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.
+Wed Feb 28 23:11:23 2018 - [info] Reading application default configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:11:23 2018 - [info] Reading server configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:11:23 2018 - [info] MHA::MasterFailover version 0.56.
+Wed Feb 28 23:11:23 2018 - [info] Starting master failover.
+Wed Feb 28 23:11:23 2018 - [info]
+Wed Feb 28 23:11:23 2018 - [info] * Phase 1: Configuration Check Phase..
+Wed Feb 28 23:11:23 2018 - [info]
+Wed Feb 28 23:11:24 2018 - [info] GTID failover mode = 0
+Wed Feb 28 23:11:24 2018 - [info] Dead Servers:
+Wed Feb 28 23:11:24 2018 - [info]   10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:24 2018 - [info] Checking master reachability via MySQL(double check)...
+Wed Feb 28 23:11:24 2018 - [info]  ok.
+Wed Feb 28 23:11:24 2018 - [info] Alive Servers:
+Wed Feb 28 23:11:24 2018 - [info]   10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:11:24 2018 - [info]   10.252.99.34(10.252.99.34:3307)
+Wed Feb 28 23:11:24 2018 - [info] Alive Slaves:
+Wed Feb 28 23:11:24 2018 - [info]   10.252.99.32(10.252.99.32:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:24 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:24 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Wed Feb 28 23:11:24 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:24 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:24 2018 - [info]     Not candidate for the new Master (no_master is set)
+Master 10.252.99.33(10.252.99.33:3307) is dead. Proceed? (yes/NO): yes
+Wed Feb 28 23:11:34 2018 - [info] Starting Non-GTID based failover.
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] ** Phase 1: Configuration Check Phase completed.
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] * Phase 2: Dead Master Shutdown Phase..
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] HealthCheck: SSH to 10.252.99.33 is reachable.
+Wed Feb 28 23:11:34 2018 - [info] Forcing shutdown so that applications never connect to the current master..
+Wed Feb 28 23:11:34 2018 - [info] Executing master IP deactivation script:
+Wed Feb 28 23:11:34 2018 - [info]   /etc/masterha/app2/scripts/master_ip_failover --orig_master_host=10.252.99.33 --orig_master_ip=10.252.99.33 --orig_master_port=3307 --command=stopssh --ssh_user=mysql
+Wed Feb 28 23:11:34 2018 - [info]  done.
+Wed Feb 28 23:11:34 2018 - [warning] shutdown_script is not set. Skipping explicit shutting down of the dead master.
+Wed Feb 28 23:11:34 2018 - [info] * Phase 2: Dead Master Shutdown Phase completed.
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] * Phase 3: Master Recovery Phase..
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] * Phase 3.1: Getting Latest Slaves Phase..
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] The latest binary log file/position on all slaves is mysql_bin.000005:120
+Wed Feb 28 23:11:34 2018 - [info] Latest slaves (Slaves that received relay log files to the latest):
+Wed Feb 28 23:11:34 2018 - [info]   10.252.99.32(10.252.99.32:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:34 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:34 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Wed Feb 28 23:11:34 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:34 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:34 2018 - [info]     Not candidate for the new Master (no_master is set)
+Wed Feb 28 23:11:34 2018 - [info] The oldest binary log file/position on all slaves is mysql_bin.000005:120
+Wed Feb 28 23:11:34 2018 - [info] Oldest slaves:
+Wed Feb 28 23:11:34 2018 - [info]   10.252.99.32(10.252.99.32:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:34 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:34 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Wed Feb 28 23:11:34 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:34 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:34 2018 - [info]     Not candidate for the new Master (no_master is set)
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] * Phase 3.2: Saving Dead Master's Binlog Phase..
+Wed Feb 28 23:11:34 2018 - [info]
+Wed Feb 28 23:11:34 2018 - [info] Fetching dead master's binary logs..
+Wed Feb 28 23:11:34 2018 - [info] Executing command on the dead master 10.252.99.33(10.252.99.33:3307): save_binary_logs--command=save --start_file=mysql_bin.000005  --start_pos=120 --binlog_dir=/data/3307/logs --output_file=/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog --handle_raw_binlog=1 --disable_log_bin=0 --manager_version=0.56
+  Creating /var/log/masterha/app2 if not exists..    ok.
+ Concat binary/relay logs from mysql_bin.000005 pos 120 to mysql_bin.000005 EOF into /var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog ..
+ Binlog Checksum enabled
+  Dumping binlog format description event, from position 0 to 120.. ok.
+  Dumping effective binlog data from /data/3307/logs/mysql_bin.000005 position 120 to tail(143).. ok.
+ Binlog Checksum enabled
+ Concat succeeded.
+saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog                       100%  143     0.1KB/s   00:00
+Wed Feb 28 23:11:35 2018 - [info] scp from mysql@10.252.99.33:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog to local:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog succeeded.
+Wed Feb 28 23:11:35 2018 - [info] HealthCheck: SSH to 10.252.99.32 is reachable.
+Wed Feb 28 23:11:35 2018 - [info] HealthCheck: SSH to 10.252.99.34 is reachable.
+Wed Feb 28 23:11:35 2018 - [info]
+Wed Feb 28 23:11:35 2018 - [info] * Phase 3.3: Determining New Master Phase..
+Wed Feb 28 23:11:35 2018 - [info]
+Wed Feb 28 23:11:35 2018 - [info] Finding the latest slave that has all relay logs for recovering other slaves..
+Wed Feb 28 23:11:35 2018 - [info] All slaves received relay logs to the same position. No need to resync each other.
+Wed Feb 28 23:11:35 2018 - [info] Searching new master from slaves..
+Wed Feb 28 23:11:35 2018 - [info]  Candidate masters from the configuration file:
+Wed Feb 28 23:11:35 2018 - [info]   10.252.99.32(10.252.99.32:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:35 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:35 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Wed Feb 28 23:11:35 2018 - [info]  Non-candidate masters:
+Wed Feb 28 23:11:35 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:11:35 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:11:35 2018 - [info]     Not candidate for the new Master (no_master is set)
+Wed Feb 28 23:11:35 2018 - [info]  Searching from candidate_master slaves which have received the latest relay log events..
+Wed Feb 28 23:11:35 2018 - [info] New master is 10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:11:35 2018 - [info] Starting master failover..
+Wed Feb 28 23:11:35 2018 - [info]
+From:
+10.252.99.33(10.252.99.33:3307) (current master)
+ +--10.252.99.32(10.252.99.32:3307)
+ +--10.252.99.34(10.252.99.34:3307)
+
+To:
+10.252.99.32(10.252.99.32:3307) (new master)
+ +--10.252.99.34(10.252.99.34:3307)
+
+Starting master switch from 10.252.99.33(10.252.99.33:3307) to 10.252.99.32(10.252.99.32:3307)? (yes/NO): yes
+Wed Feb 28 23:11:44 2018 - [info] New master decided manually is 10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:11:44 2018 - [info]
+Wed Feb 28 23:11:44 2018 - [info] * Phase 3.3: New Master Diff Log Generation Phase..
+Wed Feb 28 23:11:44 2018 - [info]
+Wed Feb 28 23:11:44 2018 - [info]  This server has all relay logs. No need to generate diff files from the latest slave.
+Wed Feb 28 23:11:44 2018 - [info] Sending binlog..
+saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog                       100%  143     0.1KB/s   00:00
+Wed Feb 28 23:11:44 2018 - [info] scp from local:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog to mysql@10.252.99.32:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog succeeded.
+Wed Feb 28 23:11:44 2018 - [info]
+Wed Feb 28 23:11:44 2018 - [info] * Phase 3.4: Master Log Apply Phase..
+Wed Feb 28 23:11:44 2018 - [info]
+Wed Feb 28 23:11:44 2018 - [info] *NOTICE: If any error happens from this phase, manual recovery is needed.
+Wed Feb 28 23:11:44 2018 - [info] Starting recovery on 10.252.99.32(10.252.99.32:3307)..
+Wed Feb 28 23:11:44 2018 - [info]  Generating diffs succeeded.
+Wed Feb 28 23:11:44 2018 - [info] Waiting until all relay logs are applied.
+Wed Feb 28 23:11:44 2018 - [info]  done.
+Wed Feb 28 23:11:44 2018 - [info] Getting slave status..
+Wed Feb 28 23:11:44 2018 - [info] This slave(10.252.99.32)'s Exec_Master_Log_Pos equals to Read_Master_Log_Pos(mysql_bin.000005:120). No need to recover from Exec_Master_Log_Pos.
+Wed Feb 28 23:11:44 2018 - [info] Connecting to the target slave host 10.252.99.32, running recover script..
+Wed Feb 28 23:11:44 2018 - [info] Executing command: apply_diff_relay_logs --command=apply --slave_user='mha_mgr' --slave_host=10.252.99.32 --slave_ip=10.252.99.32  --slave_port=3307 --apply_files=/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog --workdir=/var/log/masterha/app2 --target_version=5.6.38-log --timestamp=20180228231123 --handle_raw_binlog=1 --disable_log_bin=0 --manager_version=0.56 --slave_pass=xxx
+Wed Feb 28 23:11:44 2018 - [info]
+MySQL client version is 5.6.38. Using --binary-mode.
+Applying differential binary/relay log files /var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog on 10.252.99.32:3307. This may take long time...
+Applying log files succeeded.
+Wed Feb 28 23:11:44 2018 - [info]  All relay logs were successfully applied.
+Wed Feb 28 23:11:44 2018 - [info] Getting new master's binlog name and position..
+Wed Feb 28 23:11:44 2018 - [info]  mysql_bin.000005:120
+Wed Feb 28 23:11:44 2018 - [info]  All other slaves should start replication from here. Statement should be: CHANGE MASTER TO MASTER_HOST='10.252.99.32', MASTER_PORT=3307, MASTER_LOG_FILE='mysql_bin.000005', MASTER_LOG_POS=120, MASTER_USER='repl', MASTER_PASSWORD='xxx';
+Wed Feb 28 23:11:44 2018 - [info] Executing master IP activate script:
+Wed Feb 28 23:11:44 2018 - [info]   /etc/masterha/app2/scripts/master_ip_failover --command=start --ssh_user=mysql --orig_master_host=10.252.99.33 --orig_master_ip=10.252.99.33 --orig_master_port=3307 --new_master_host=10.252.99.32 --new_master_ip=10.252.99.32 --new_master_port=3307 --new_master_user='mha_mgr' --new_master_password='mha_mgr'
+Set read_only=0 on the new master.
+Wed Feb 28 23:11:46 2018 - [info]  OK.
+Wed Feb 28 23:11:46 2018 - [info] ** Finished master recovery successfully.
+Wed Feb 28 23:11:46 2018 - [info] * Phase 3: Master Recovery Phase completed.
+Wed Feb 28 23:11:46 2018 - [info]
+Wed Feb 28 23:11:46 2018 - [info] * Phase 4: Slaves Recovery Phase..
+Wed Feb 28 23:11:46 2018 - [info]
+Wed Feb 28 23:11:46 2018 - [info] * Phase 4.1: Starting Parallel Slave Diff Log Generation Phase..
+Wed Feb 28 23:11:46 2018 - [info]
+Wed Feb 28 23:11:46 2018 - [info] -- Slave diff file generation on host 10.252.99.34(10.252.99.34:3307) started, pid: 3732. Check tmp log /var/log/masterha/app2/10.252.99.34_3307_20180228231123.log if it takes time..
+Wed Feb 28 23:11:47 2018 - [info]
+Wed Feb 28 23:11:47 2018 - [info] Log messages from 10.252.99.34 ...
+Wed Feb 28 23:11:47 2018 - [info]
+Wed Feb 28 23:11:46 2018 - [info]  This server has all relay logs. No need to generate diff files from the latest slave.
+Wed Feb 28 23:11:47 2018 - [info] End of log messages from 10.252.99.34.
+Wed Feb 28 23:11:47 2018 - [info] -- 10.252.99.34(10.252.99.34:3307) has the latest relay log events.
+Wed Feb 28 23:11:47 2018 - [info] Generating relay diff files from the latest slave succeeded.
+Wed Feb 28 23:11:47 2018 - [info]
+Wed Feb 28 23:11:47 2018 - [info] * Phase 4.2: Starting Parallel Slave Log Apply Phase..
+Wed Feb 28 23:11:47 2018 - [info]
+Wed Feb 28 23:11:47 2018 - [info] -- Slave recovery on host 10.252.99.34(10.252.99.34:3307) started, pid: 3738. Check tmp log /var/log/masterha/app2/10.252.99.34_3307_20180228231123.log if it takes time..
+saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog                       100%  143     0.1KB/s   00:00
+Wed Feb 28 23:11:48 2018 - [info]
+Wed Feb 28 23:11:48 2018 - [info] Log messages from 10.252.99.34 ...
+Wed Feb 28 23:11:48 2018 - [info]
+Wed Feb 28 23:11:47 2018 - [info] Sending binlog..
+Wed Feb 28 23:11:47 2018 - [info] scp from local:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog to mysql@10.252.99.34:/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog succeeded.
+Wed Feb 28 23:11:47 2018 - [info] Starting recovery on 10.252.99.34(10.252.99.34:3307)..
+Wed Feb 28 23:11:47 2018 - [info]  Generating diffs succeeded.
+Wed Feb 28 23:11:47 2018 - [info] Waiting until all relay logs are applied.
+Wed Feb 28 23:11:47 2018 - [info]  done.
+Wed Feb 28 23:11:47 2018 - [info] Getting slave status..
+Wed Feb 28 23:11:47 2018 - [info] This slave(10.252.99.34)'s Exec_Master_Log_Pos equals to Read_Master_Log_Pos(mysql_bin.000005:120). No need to recover from Exec_Master_Log_Pos.
+Wed Feb 28 23:11:47 2018 - [info] Connecting to the target slave host 10.252.99.34, running recover script..
+Wed Feb 28 23:11:47 2018 - [info] Executing command: apply_diff_relay_logs --command=apply --slave_user='mha_mgr' --slave_host=10.252.99.34 --slave_ip=10.252.99.34  --slave_port=3307 --apply_files=/var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog --workdir=/var/log/masterha/app2 --target_version=5.6.38-log --timestamp=20180228231123 --handle_raw_binlog=1 --disable_log_bin=0 --manager_version=0.56 --slave_pass=xxx
+Wed Feb 28 23:11:47 2018 - [info]
+MySQL client version is 5.6.38. Using --binary-mode.
+Applying differential binary/relay log files /var/log/masterha/app2/saved_master_binlog_from_10.252.99.33_3307_20180228231123.binlog on 10.252.99.34:3307. This may take long time...
+Applying log files succeeded.
+Wed Feb 28 23:11:47 2018 - [info]  All relay logs were successfully applied.
+Wed Feb 28 23:11:47 2018 - [info]  Resetting slave 10.252.99.34(10.252.99.34:3307) and starting replication from the newmaster 10.252.99.32(10.252.99.32:3307)..
+Wed Feb 28 23:11:47 2018 - [info]  Executed CHANGE MASTER.
+Wed Feb 28 23:11:47 2018 - [info]  Slave started.
+Wed Feb 28 23:11:48 2018 - [info] End of log messages from 10.252.99.34.
+Wed Feb 28 23:11:48 2018 - [info] -- Slave recovery on host 10.252.99.34(10.252.99.34:3307) succeeded.
+Wed Feb 28 23:11:48 2018 - [info] All new slave servers recovered successfully.
+Wed Feb 28 23:11:48 2018 - [info]
+Wed Feb 28 23:11:48 2018 - [info] * Phase 5: New master cleanup phase..
+Wed Feb 28 23:11:48 2018 - [info]
+Wed Feb 28 23:11:48 2018 - [info] Resetting slave info on the new master..
+Wed Feb 28 23:11:48 2018 - [info]  10.252.99.32: Resetting slave info succeeded.
+Wed Feb 28 23:11:48 2018 - [info] Master failover to 10.252.99.32(10.252.99.32:3307) completed successfully.
+Wed Feb 28 23:11:48 2018 - [info]
+
+----- Failover Report -----
+
+app2: MySQL Master failover 10.252.99.33(10.252.99.33:3307) to 10.252.99.32(10.252.99.32:3307) succeeded
+
+Master 10.252.99.33(10.252.99.33:3307) is down!
+
+Check MHA Manager logs at test35.sys.cn for details.
+
+Started manual(interactive) failover.
+Invalidated master IP address on 10.252.99.33(10.252.99.33:3307)
+The latest slave 10.252.99.32(10.252.99.32:3307) has all relay logs for recovery.
+Selected 10.252.99.32(10.252.99.32:3307) as a new master.
+10.252.99.32(10.252.99.32:3307): OK: Applying all logs succeeded.
+10.252.99.32(10.252.99.32:3307): OK: Activated master IP address.
+10.252.99.34(10.252.99.34:3307): This host has the latest relay log events.
+Generating relay diff files from the latest slave succeeded.
+10.252.99.34(10.252.99.34:3307): OK: Applying all logs succeeded. Slave started, replicating from 10.252.99.32(10.252.99.32:3307)
+10.252.99.32(10.252.99.32:3307): Resetting slave info succeeded.
+Master failover to 10.252.99.32(10.252.99.32:3307) completed successfully.

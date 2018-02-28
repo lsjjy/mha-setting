@@ -1,3 +1,5 @@
+# 在线平滑切换
+
 $ /usr/local/bin/masterha_master_switch --conf=/etc/masterha/app2/app2.cnf --master_state=alive --orig_master_is_new_slave
 Wed Feb 28 21:58:38 2018 - [info] MHA::MasterRotate version 0.56.
 Wed Feb 28 21:58:38 2018 - [info] Starting online master switch..

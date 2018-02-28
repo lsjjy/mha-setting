@@ -1,0 +1,110 @@
+$ masterha_check_ssh --conf=/etc/masterha/app2/app2.cnf
+Wed Feb 28 23:24:25 2018 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.
+Wed Feb 28 23:24:25 2018 - [info] Reading application default configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:24:25 2018 - [info] Reading server configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:24:25 2018 - [info] Starting SSH connection tests..
+Wed Feb 28 23:24:25 2018 - [debug]
+Wed Feb 28 23:24:25 2018 - [debug]  Connecting via SSH from mysql@10.252.99.32(10.252.99.32:22) to mysql@10.252.99.33(10.252.99.33:22)..
+Wed Feb 28 23:24:25 2018 - [debug]   ok.
+Wed Feb 28 23:24:25 2018 - [debug]  Connecting via SSH from mysql@10.252.99.32(10.252.99.32:22) to mysql@10.252.99.34(10.252.99.34:22)..
+Wed Feb 28 23:24:25 2018 - [debug]   ok.
+Wed Feb 28 23:24:26 2018 - [debug]
+Wed Feb 28 23:24:25 2018 - [debug]  Connecting via SSH from mysql@10.252.99.33(10.252.99.33:22) to mysql@10.252.99.32(10.252.99.32:22)..
+Wed Feb 28 23:24:25 2018 - [debug]   ok.
+Wed Feb 28 23:24:25 2018 - [debug]  Connecting via SSH from mysql@10.252.99.33(10.252.99.33:22) to mysql@10.252.99.34(10.252.99.34:22)..
+Wed Feb 28 23:24:26 2018 - [debug]   ok.
+Wed Feb 28 23:24:26 2018 - [debug]
+Wed Feb 28 23:24:26 2018 - [debug]  Connecting via SSH from mysql@10.252.99.34(10.252.99.34:22) to mysql@10.252.99.32(10.252.99.32:22)..
+Wed Feb 28 23:24:26 2018 - [debug]   ok.
+Wed Feb 28 23:24:26 2018 - [debug]  Connecting via SSH from mysql@10.252.99.34(10.252.99.34:22) to mysql@10.252.99.33(10.252.99.33:22)..
+Wed Feb 28 23:24:26 2018 - [debug]   ok.
+Wed Feb 28 23:24:26 2018 - [info] All SSH connection tests passed successfully.
+
+
+$ masterha_check_repl --conf=/etc/masterha/app2/app2.cnf
+Wed Feb 28 23:26:08 2018 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.
+Wed Feb 28 23:26:08 2018 - [info] Reading application default configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:26:08 2018 - [info] Reading server configuration from /etc/masterha/app2/app2.cnf..
+Wed Feb 28 23:26:08 2018 - [info] MHA::MasterMonitor version 0.56.
+Wed Feb 28 23:26:09 2018 - [info] GTID failover mode = 0
+Wed Feb 28 23:26:09 2018 - [info] Dead Servers:
+Wed Feb 28 23:26:09 2018 - [info] Alive Servers:
+Wed Feb 28 23:26:09 2018 - [info]   10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:26:09 2018 - [info]   10.252.99.33(10.252.99.33:3307)
+Wed Feb 28 23:26:09 2018 - [info]   10.252.99.34(10.252.99.34:3307)
+Wed Feb 28 23:26:09 2018 - [info] Alive Slaves:
+Wed Feb 28 23:26:09 2018 - [info]   10.252.99.33(10.252.99.33:3307)  Version=5.6.24-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:26:09 2018 - [info]     Replicating from 10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:26:09 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Wed Feb 28 23:26:09 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Wed Feb 28 23:26:09 2018 - [info]     Replicating from 10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:26:09 2018 - [info]     Not candidate for the new Master (no_master is set)
+Wed Feb 28 23:26:09 2018 - [info] Current Alive Master: 10.252.99.32(10.252.99.32:3307)
+Wed Feb 28 23:26:09 2018 - [info] Checking slave configurations..
+Wed Feb 28 23:26:09 2018 - [warning]  relay_log_purge=0 is not set on slave 10.252.99.34(10.252.99.34:3307).
+Wed Feb 28 23:26:09 2018 - [info] Checking replication filtering settings..
+Wed Feb 28 23:26:09 2018 - [info]  binlog_do_db= , binlog_ignore_db=
+Wed Feb 28 23:26:09 2018 - [info]  Replication filtering check ok.
+Wed Feb 28 23:26:09 2018 - [info] GTID (with auto-pos) is not supported
+Wed Feb 28 23:26:09 2018 - [info] Starting SSH connection tests..
+Wed Feb 28 23:26:10 2018 - [info] All SSH connection tests passed successfully.
+Wed Feb 28 23:26:10 2018 - [info] Checking MHA Node version..
+Wed Feb 28 23:26:11 2018 - [info]  Version check ok.
+Wed Feb 28 23:26:11 2018 - [info] Checking SSH publickey authentication settings on the current master..
+Wed Feb 28 23:26:11 2018 - [info] HealthCheck: SSH to 10.252.99.32 is reachable.
+Wed Feb 28 23:26:11 2018 - [info] Master MHA Node version is 0.56.
+Wed Feb 28 23:26:11 2018 - [info] Checking recovery script configurations on 10.252.99.32(10.252.99.32:3307)..
+Wed Feb 28 23:26:11 2018 - [info]   Executing command: save_binary_logs --command=test --start_pos=4 --binlog_dir=/data/3307/logs --output_file=/var/log/masterha/app2/save_binary_logs_test --manager_version=0.56 --start_file=mysql_bin.000005
+Wed Feb 28 23:26:11 2018 - [info]   Connecting to mysql@10.252.99.32(10.252.99.32:22)..
+  Creating /var/log/masterha/app2 if not exists..    ok.
+  Checking output directory is accessible or not..
+   ok.
+  Binlog found at /data/3307/logs, up to mysql_bin.000005
+Wed Feb 28 23:26:11 2018 - [info] Binlog setting check done.
+Wed Feb 28 23:26:11 2018 - [info] Checking SSH publickey authentication and checking recovery script configurations on all alive slave servers..
+Wed Feb 28 23:26:11 2018 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_mgr' --slave_host=10.252.99.33 --slave_ip=10.252.99.33 --slave_port=3307 --workdir=/var/log/masterha/app2 --target_version=5.6.24-log --manager_version=0.56 --relay_log_info=/data/3307/data/relay-log.info  --relay_dir=/data/3307/data/  --slave_pass=xxx
+Wed Feb 28 23:26:11 2018 - [info]   Connecting to mysql@10.252.99.33(10.252.99.33:22)..
+  Checking slave recovery environment settings..
+    Opening /data/3307/data/relay-log.info ... ok.
+    Relay log found at /data/3307/logs, up to relay_bin.000002
+    Temporary relay log file is /data/3307/logs/relay_bin.000002
+    Testing mysql connection and privileges..Warning: Using a password on the command line interface can be insecure.
+ done.
+    Testing mysqlbinlog output.. done.
+    Cleaning up test file(s).. done.
+Wed Feb 28 23:26:11 2018 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_mgr' --slave_host=10.252.99.34 --slave_ip=10.252.99.34 --slave_port=3307 --workdir=/var/log/masterha/app2 --target_version=5.6.38-log --manager_version=0.56 --relay_log_info=/data/3307/data/relay-log.info  --relay_dir=/data/3307/data/  --slave_pass=xxx
+Wed Feb 28 23:26:11 2018 - [info]   Connecting to mysql@10.252.99.34(10.252.99.34:22)..
+  Checking slave recovery environment settings..
+    Opening /data/3307/data/relay-log.info ... ok.
+    Relay log found at /data/3307/logs, up to relay_bin.000002
+    Temporary relay log file is /data/3307/logs/relay_bin.000002
+    Testing mysql connection and privileges..Warning: Using a password on the command line interface can be insecure.
+ done.
+    Testing mysqlbinlog output.. done.
+    Cleaning up test file(s).. done.
+Wed Feb 28 23:26:11 2018 - [info] Slaves settings check done.
+Wed Feb 28 23:26:11 2018 - [info]
+10.252.99.32(10.252.99.32:3307) (current master)
+ +--10.252.99.33(10.252.99.33:3307)
+ +--10.252.99.34(10.252.99.34:3307)
+
+Wed Feb 28 23:26:11 2018 - [info] Checking replication health on 10.252.99.33..
+Wed Feb 28 23:26:11 2018 - [info]  ok.
+Wed Feb 28 23:26:11 2018 - [info] Checking replication health on 10.252.99.34..
+Wed Feb 28 23:26:11 2018 - [info]  ok.
+Wed Feb 28 23:26:11 2018 - [info] Checking master_ip_failover_script status:
+Wed Feb 28 23:26:11 2018 - [info]   /etc/masterha/app2/scripts/master_ip_failover --command=status --ssh_user=mysql --orig_master_host=10.252.99.32 --orig_master_ip=10.252.99.32 --orig_master_port=3307
+    inet 10.252.99.38/32 scope global eth0
+INFO: VIP 10.252.99.38 found on Master
+Wed Feb 28 23:26:12 2018 - [info]  OK.
+Wed Feb 28 23:26:12 2018 - [warning] shutdown_script is not defined.
+Wed Feb 28 23:26:12 2018 - [info] Got exit code 0 (Not master dead).
+
+MySQL Replication Health is OK.
+
+$ nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1 &
+[1] 4469
+
+$ masterha_stop --conf=/etc/masterha/app2/app2.cnf
+Stopped app2 successfully.
+[1]+  Exit 1                  nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1

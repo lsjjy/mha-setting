@@ -105,6 +105,9 @@ MySQL Replication Health is OK.
 $ nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1 &
 [1] 4469
 
+$ masterha_check_status --conf=/etc/masterha/app2/app2.cnf
+app2 (pid:5111) is running(0:PING_OK), master:10.252.99.32
+
 $ masterha_stop --conf=/etc/masterha/app2/app2.cnf
 Stopped app2 successfully.
 [1]+  Exit 1                  nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1

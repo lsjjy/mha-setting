@@ -1,0 +1,84 @@
+$ nohup masterha_manager --conf=/etc/masterha/app2/app2.cnf --remove_dead_master_conf --ignore_last_failover < /dev/null > /var/log/masterha/app2/manager.log 2>&1 &
+
+Thu Mar  1 13:44:27 2018 - [info] MHA::MasterMonitor version 0.56.
+Thu Mar  1 13:44:28 2018 - [info] GTID failover mode = 0
+Thu Mar  1 13:44:28 2018 - [info] Dead Servers:
+Thu Mar  1 13:44:28 2018 - [info] Alive Servers:
+Thu Mar  1 13:44:28 2018 - [info]   10.252.99.32(10.252.99.32:3307)
+Thu Mar  1 13:44:28 2018 - [info]   10.252.99.33(10.252.99.33:3307)
+Thu Mar  1 13:44:28 2018 - [info]   10.252.99.34(10.252.99.34:3307)
+Thu Mar  1 13:44:28 2018 - [info] Alive Slaves:
+Thu Mar  1 13:44:28 2018 - [info]   10.252.99.32(10.252.99.32:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Thu Mar  1 13:44:28 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Thu Mar  1 13:44:28 2018 - [info]     Primary candidate for the new Master (candidate_master is set)
+Thu Mar  1 13:44:28 2018 - [info]   10.252.99.34(10.252.99.34:3307)  Version=5.6.38-log (oldest major version between slaves) log-bin:enabled
+Thu Mar  1 13:44:28 2018 - [info]     Replicating from 10.252.99.33(10.252.99.33:3307)
+Thu Mar  1 13:44:28 2018 - [info]     Not candidate for the new Master (no_master is set)
+Thu Mar  1 13:44:28 2018 - [info] Current Alive Master: 10.252.99.33(10.252.99.33:3307)
+Thu Mar  1 13:44:28 2018 - [info] Checking slave configurations..
+Thu Mar  1 13:44:28 2018 - [warning]  relay_log_purge=0 is not set on slave 10.252.99.34(10.252.99.34:3307).
+Thu Mar  1 13:44:28 2018 - [info] Checking replication filtering settings..
+Thu Mar  1 13:44:28 2018 - [info]  binlog_do_db= , binlog_ignore_db=
+Thu Mar  1 13:44:28 2018 - [info]  Replication filtering check ok.
+Thu Mar  1 13:44:28 2018 - [info] GTID (with auto-pos) is not supported
+Thu Mar  1 13:44:28 2018 - [info] Starting SSH connection tests..
+Thu Mar  1 13:44:29 2018 - [info] All SSH connection tests passed successfully.
+Thu Mar  1 13:44:29 2018 - [info] Checking MHA Node version..
+Thu Mar  1 13:44:29 2018 - [info]  Version check ok.
+Thu Mar  1 13:44:29 2018 - [info] Checking SSH publickey authentication settings on the current master..
+Thu Mar  1 13:44:30 2018 - [info] HealthCheck: SSH to 10.252.99.33 is reachable.
+Thu Mar  1 13:44:30 2018 - [info] Master MHA Node version is 0.56.
+Thu Mar  1 13:44:30 2018 - [info] Checking recovery script configurations on 10.252.99.33(10.252.99.33:3307)..
+Thu Mar  1 13:44:30 2018 - [info]   Executing command: save_binary_logs --command=test --start_pos=4 --binlog_dir=/data/3307/logs --output_file=/var/log/masterha/app2/save_binary_logs_test --manager_version=0.56 --start_file=mysql_bin.000006
+Thu Mar  1 13:44:30 2018 - [info]   Connecting to mysql@10.252.99.33(10.252.99.33:22)..
+  Creating /var/log/masterha/app2 if not exists..    ok.
+  Checking output directory is accessible or not..
+   ok.
+  Binlog found at /data/3307/logs, up to mysql_bin.000006
+Thu Mar  1 13:44:30 2018 - [info] Binlog setting check done.
+Thu Mar  1 13:44:30 2018 - [info] Checking SSH publickey authentication and checking recovery script configurations on all alive slave servers..
+Thu Mar  1 13:44:30 2018 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_mgr' --slave_host=10.252.99.32 --slave_ip=10.252.99.32 --slave_port=3307 --workdir=/var/log/masterha/app2 --target_version=5.6.38-log --manager_version=0.56 --relay_log_info=/data/3307/data/relay-log.info  --relay_dir=/data/3307/data/  --slave_pass=xxx
+Thu Mar  1 13:44:30 2018 - [info]   Connecting to mysql@10.252.99.32(10.252.99.32:22)..
+  Checking slave recovery environment settings..
+    Opening /data/3307/data/relay-log.info ... ok.
+    Relay log found at /data/3307/logs, up to relay_bin.000002
+    Temporary relay log file is /data/3307/logs/relay_bin.000002
+    Testing mysql connection and privileges..Warning: Using a password on the command line interface can be insecure.
+ done.
+    Testing mysqlbinlog output.. done.
+    Cleaning up test file(s).. done.
+Thu Mar  1 13:44:30 2018 - [info]   Executing command : apply_diff_relay_logs --command=test --slave_user='mha_mgr' --slave_host=10.252.99.34 --slave_ip=10.252.99.34 --slave_port=3307 --workdir=/var/log/masterha/app2 --target_version=5.6.38-log --manager_version=0.56 --relay_log_info=/data/3307/data/relay-log.info  --relay_dir=/data/3307/data/  --slave_pass=xxx
+Thu Mar  1 13:44:30 2018 - [info]   Connecting to mysql@10.252.99.34(10.252.99.34:22)..
+  Checking slave recovery environment settings..
+    Opening /data/3307/data/relay-log.info ... ok.
+    Relay log found at /data/3307/logs, up to relay_bin.000002
+    Temporary relay log file is /data/3307/logs/relay_bin.000002
+    Testing mysql connection and privileges..Warning: Using a password on the command line interface can be insecure.
+ done.
+    Testing mysqlbinlog output.. done.
+    Cleaning up test file(s).. done.
+Thu Mar  1 13:44:30 2018 - [info] Slaves settings check done.
+Thu Mar  1 13:44:30 2018 - [info]
+10.252.99.33(10.252.99.33:3307) (current master)
+ +--10.252.99.32(10.252.99.32:3307)
+ +--10.252.99.34(10.252.99.34:3307)
+
+Thu Mar  1 13:44:30 2018 - [info] Checking master_ip_failover_script status:
+Thu Mar  1 13:44:30 2018 - [info]   /etc/masterha/app2/scripts/master_ip_failover --command=status --ssh_user=mysql --orig_master_host=10.252.99.33 --orig_master_ip=10.252.99.33 --orig_master_port=3307
+    inet 10.252.99.38/32 scope global eth0
+INFO: VIP 10.252.99.38 found on Master
+Thu Mar  1 13:44:31 2018 - [info]  OK.
+Thu Mar  1 13:44:31 2018 - [warning] shutdown_script is not defined.
+Thu Mar  1 13:44:31 2018 - [info] Set master ping interval 1 seconds.
+Thu Mar  1 13:44:31 2018 - [info] Set secondary check script: /usr/local/bin/masterha_secondary_check -s 10.252.99.33 -s10.252.99.34 --user=mysql --port=22 --master_host=10.252.99.32 --master_port=3307
+Thu Mar  1 13:44:31 2018 - [info] Starting ping health check on 10.252.99.33(10.252.99.33:3307)..
+Thu Mar  1 13:44:31 2018 - [info] Ping(CONNECT) succeeded, waiting until MySQL doesn't respond..
+Thu Mar  1 13:46:44 2018 - [info] Got terminate signal. Exit.
+
+
+1. 检查SSH连通性.
+2. save_binary_logs测试拷贝binlog.
+3. 每个从库apply_diff_relay_logs测试应用relay log.
+4. master_ip_failover查看虚拟写IP.
+5. Set secondary check script.
+6. Starting ping health check.

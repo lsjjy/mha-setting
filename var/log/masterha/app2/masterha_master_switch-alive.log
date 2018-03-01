@@ -131,7 +131,7 @@ Wed Feb 28 21:58:43 2018 - [info]
 
 第2原主新主切换阶段:
 1. 摘除原主库的虚拟写IP.
-2. 设置Set read_only=1; Killing all application threads.
+2. 设置Set read_only=1 on the orig master; Killing all application threads.
 3. 执行FLUSH TABLES WITH READ LOCK.
 4. 新主库执行master_pos_wait(mysql_bin.000003:120), 保证和原主库等高, 获取Getting new master's binlog name and position(mysql_bin.000004:120).
 5. 设置Set read_only=0, 至此新主库可用了.

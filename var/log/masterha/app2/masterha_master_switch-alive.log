@@ -56,6 +56,12 @@ Wed Feb 28 21:58:43 2018 - [info] 10.252.99.33(10.252.99.33:3307): SHOW SLAVE ST
 Wed Feb 28 21:58:43 2018 - [info] 10.252.99.33(10.252.99.33:3307): Resetting slave pointing to the dummy host.
 Wed Feb 28 21:58:43 2018 - [info] ** Phase 1: Configuration Check Phase completed.
 Wed Feb 28 21:58:43 2018 - [info]
+
+第1环境准备阶段:
+1. 切换条件检查.
+2. 执行FLUSH NO_WRITE_TO_BINLOG TABLES, 为后续的FLUSH TABLES WITH READ LOCK做准备.
+
+
 Wed Feb 28 21:58:43 2018 - [info] * Phase 2: Rejecting updates Phase..
 Wed Feb 28 21:58:43 2018 - [info]
 Wed Feb 28 21:58:43 2018 - [info] Executing master ip online change script to disable write on the current master:
@@ -122,6 +128,15 @@ Wed Feb 28 21:58:43 2018 839530 Set read_only=0 on the new master.
 RTNETLINK answers: File exists
 Wed Feb 28 21:58:43 2018 - [info]  ok.
 Wed Feb 28 21:58:43 2018 - [info]
+
+第2原主新主切换阶段:
+1. 摘除原主库的虚拟写IP.
+2. 设置Set read_only=1; Killing all application threads.
+3. 执行FLUSH TABLES WITH READ LOCK.
+4. 新主库执行master_pos_wait(mysql_bin.000003:120), 保证和原主库等高, 获取Getting new master's binlog name and position(mysql_bin.000004:120).
+5. 设置Set read_only=0, 至此新主库可用了.
+
+
 Wed Feb 28 21:58:43 2018 - [info] * Switching slaves in parallel..
 Wed Feb 28 21:58:43 2018 - [info]
 Wed Feb 28 21:58:43 2018 - [info] -- Slave switch on host 10.252.99.34(10.252.99.34:3307) started, pid: 373
@@ -146,7 +161,16 @@ Wed Feb 28 21:58:44 2018 - [info]  Executed CHANGE MASTER.
 Wed Feb 28 21:58:44 2018 - [info]  Slave started.
 Wed Feb 28 21:58:44 2018 - [info] All new slave servers switched successfully.
 Wed Feb 28 21:58:44 2018 - [info]
+
+第3复制关系重置阶段
+1. 从库执行master_pos_wait(mysql_bin.000003:120), 保证和原主库等高, 重置复制关系.
+2. 原主库UNLOCK TABLES, 重置复制关系.
+
+
 Wed Feb 28 21:58:44 2018 - [info] * Phase 5: New master cleanup phase..
 Wed Feb 28 21:58:44 2018 - [info]
 Wed Feb 28 21:58:44 2018 - [info]  10.252.99.32: Resetting slave info succeeded.
 Wed Feb 28 21:58:44 2018 - [info] Switching master to 10.252.99.32(10.252.99.32:3307) completed successfully.
+
+第4清理阶段
+1. 新主库Resetting slave info, 至此切换完成.

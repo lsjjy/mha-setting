@@ -127,7 +127,7 @@ Wed Feb 28 22:06:18 2018 - [info] MHA::MasterFailover version 0.56.
 第1发现阶段
 1. Got error on MySQL connect ping.
 2. Executing secondary network check.
-3. save_binary_logs测试在dead master上slave差异binlog.
+3. save_binary_logs测试在dead master上save差异binlog.
 4. 重新加载配置/etc/masterha/app2/app2.cnf, 准备master failover.
 
 

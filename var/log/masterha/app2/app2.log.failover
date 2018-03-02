@@ -263,7 +263,7 @@ Wed Feb 28 22:06:21 2018 - [info]
 2. Dead Master Shutdown Phase, 摘除虚拟写IP.
 3. save_binary_logs在dead master上save差异binlog.
 4. 确定新主库Determining New Master.
-5. 新主库补全从dead master上拷贝的binlog(若此时出问题, 需手动介入), 获取filename和position.
+5. 新主库apply_diff_relay_logs补全从dead master上拷贝的binlog(若此时出问题, 需手动介入), 获取filename和position.
 6. master_ip_failover挂载虚拟写IP, 设置Set read_only=0, 至此新主库可用.
 
 

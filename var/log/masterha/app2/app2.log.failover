@@ -310,8 +310,8 @@ Wed Feb 28 22:06:23 2018 - [info] All new slave servers recovered successfully.
 Wed Feb 28 22:06:23 2018 - [info] 
 
 第3从库补全阶段
-1. 从库从新主库获取有差异的relay log.
-2. 从库补全relay log.
+1. 从库从新主库获取有差异的relay log补全.
+2. 从库获取从原主库拷贝的binlog, 进行最后补全.
 3. 重置复制关系.
 
 

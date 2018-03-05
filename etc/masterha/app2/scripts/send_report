@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+
+logfile="/var/log/masterha/app2/send_report.log"
+
+> ${logfile}
+
+for item in "$@"; do
+    echo $item >> ${logfile}
+done
+
+mail -s "Masterha Switched" liugang1@syswin.com < ${logfile} 
+
+exit 0
+
+#
+#--orig_master_host=10.252.99.33
+#--new_master_host=10.252.99.32
+#--new_slave_hosts=10.252.99.34
+#--conf=/etc/masterha/app2/app2.cnf
+#--subject=app2: MySQL Master failover 10.252.99.33(10.252.99.33:3307) to 10.252.99.32(10.252.99.32:3307) succeeded
+#--body=Master 10.252.99.33(10.252.99.33:3307) is down! Check MHA Manager logs at test35.sys.cn:/var/log/masterha/app2/app2.log for details. Started automated(non-interactive) failover. Invalidated master IP address on 10.252.99.33(10.252.99.33:3307) Selected 10.252.99.32(10.252.99.32:3307) as a new master. 10.252.99.32(10.252.99.32:3307): OK: Applying all logssucceeded. 10.252.99.32(10.252.99.32:3307): OK: Activated master IP address. 10.252.99.34(10.252.99.34:3307): OK: Slave started, replicating from 10.252.99.32(10.252.99.32:3307) 10.252.99.32(10.252.99.32:3307): Resetting slave info succeeded. Master failover to 10.252.99.32(10.252.99.32:3307) completed successfully.
+#
+

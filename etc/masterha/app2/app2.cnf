@@ -19,6 +19,7 @@ master_ip_online_change_script=/etc/masterha/app2/scripts/master_ip_online_chang
 
 secondary_check_script=/usr/local/bin/masterha_secondary_check -s 10.252.99.33 -s 10.252.99.34 --user=mysql --port=22 --master_host=10.252.99.32 --master_port=3307
 
+report_script=/etc/masterha/app2/scripts/send_report
 
 [server1]
 hostname=10.252.99.32
